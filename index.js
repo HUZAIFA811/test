@@ -1,39 +1,55 @@
-const fs = require('fs');
-const discord = require('discord.js');
+const Discord = require('discord.js');
+const client = new Discord.Client();
+const prefix = "!"
+const regestrations = new Set()
 
-const client = new discord.Client({ disableMentions: 'everyone' });
+client.on("ready", () => {
+    console.log(`${client.user.tag} is now online and ready to be used!`)
+})
 
-const { Player } = require('discord-player');
+client.on("message", async message => {
+    if (message.author.bot) return;
+    if (message.channel.id == "8790941162667900948") {
+        if (regestrations.has(21)) return message.channel.send("Slots Full Better Luck Next Time")
+        if (!message.content.includes('Team Name') || !message.content.includes('1') || !message.content.includes('2') || !message.content.includes('3') || !message.content.includes('4') || !message.content.includes("player" || "Player" || "p" || "P")) {
+            message.react(':wrong:')
+            message.channel.send("**Wrong Format**")
+        } else if (message.mentions.users.size < 4) {
+            message.channel.send({embed: {color: "RED", description: `${message.author}, ***you need to mention 4 people!***`}})
+            message.react(':wrong:')
+        } else {
+            message.channel.send({embed: {color: "GREEN", description: `${message.author}, you have qualified!`}})
+            message.react(':check:')
+            regestrations.add(+1)
+            message.mentions.members.forEach(member => member.roles.add(message.guild.roles.cache.get("&818796598725181481")) && member.user.send({embed: {color: "GREEN", description: `${member.user}, You are qualified for tier 3 scrims`}}))
+        }
+    }
+})
+client.on('message', async message => {
+    if (message.author.bot) return;
+    if (message.channel.id == "790941161677389864") {
+        if (!message.content.includes('Team Name') || !message.content.includes('1') || !message.content.includes('2') || !message.content.includes('3') || !message.content.includes('4') || !message.content.includes("Player")) {
+            message.react(':wrong:')
+            message.channel.send("**Wrong Format**")
+            message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setTitle("Format Example:").setDescription(`
+            Team Name: PEKKA ESPORTS OFFICIAL
+            IGN Player 1: test
+            Discord: <@467701267150667776> 
+            IGN Player 2: test
+            Discord: <@786128143689187358>
+            IGN Player 3: test
+            Discord: <@658965956046880769>
+            IGN Player 4: test
+            Discord: <@740219330653978675>
+            `).setFooter('Zamonix Esports 2021', message.guild.iconURL({ dynamic: true })))
+        } else if (message.mentions.users.size < 4) {
+            message.channel.send({embed: {color: "RED", description: `${message.author}, you need to mention 4 people!`}})
+            message.react(':wrong:')
+        } else {
+            message.channel.send({embed: {color: "GREEN", description: `${message.author}, your format is correct`}})
+            message.react(':check:')
+        }
+    }
+})
 
-client.player = new Player(client);
-client.config = require('./config/bot');
-client.emotes = client.config.emojis;
-client.filters = client.config.filters;
-client.commands = new discord.Collection();
-
-fs.readdirSync('./commands').forEach(dirs => {
-    const commands = fs.readdirSync(`./commands/${dirs}`).filter(files => files.endsWith('.js'));
-
-    for (const file of commands) {
-        const command = require(`./commands/${dirs}/${file}`);
-        console.log(`Loading command ${file}`);
-        client.commands.set(command.name.toLowerCase(), command);
-    };
-});
-
-const events = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
-const player = fs.readdirSync('./player').filter(file => file.endsWith('.js'));
-
-for (const file of events) {
-    console.log(`Loading discord.js event ${file}`);
-    const event = require(`./events/${file}`);
-    client.on(file.split(".")[0], event.bind(null, client));
-};
-
-for (const file of player) {
-    console.log(`Loading discord-player event ${file}`);
-    const event = require(`./player/${file}`);
-    client.player.on(file.split(".")[0], event.bind(null, client));
-};
-
-client.login("Nzk1MDI4NzEwOTQ4MjA4NjYw.X_DaLw.7tHLZvyqU4BQBC7G62eLpeGDV1E");
+client.login("ODE2MjQyMjE5NDIxMjcwMDQ2.YD4Gzg.vXgMVlDJXA68vwJWqwjMTip_ZgY")
